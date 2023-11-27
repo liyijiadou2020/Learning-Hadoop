@@ -36,7 +36,7 @@ public class TableReducer extends Reducer<Text, TableBean, TableBean, NullWritab
 
         for (TableBean tableBean : values) {
             if ("order".equals(tableBean.getFlag())) { // 订单表
-                TableBean tmpOrderBean = new TableBean(); // 创建一个临时 TableBean 来接收 value
+                TableBean tmpOrderBean = new TableBean(); // 创建一个临时 MapJoinBean 来接收 value
 
                 try {
                     BeanUtils.copyProperties(tmpOrderBean, tableBean);
@@ -45,7 +45,7 @@ public class TableReducer extends Reducer<Text, TableBean, TableBean, NullWritab
                 } catch (InvocationTargetException e) {
                     throw new RuntimeException(e);
                 }
-//                将临时 TableBean 对象添加到集合 orderBeans
+//                将临时 MapJoinBean 对象添加到集合 orderBeans
                 orderBeans.add(tmpOrderBean);
 
             } else { // 商品表

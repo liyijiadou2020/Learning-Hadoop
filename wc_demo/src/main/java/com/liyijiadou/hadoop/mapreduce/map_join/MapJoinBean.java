@@ -18,15 +18,14 @@ import java.io.IOException;
  * @create time: 2023-11-2023/11/27
  * @description: ***********************************************************
  */
-public class TableBean implements Writable {
+public class MapJoinBean implements Writable {
 
     private String id; /* 订单id */
     private String pid; /* 商品id */
     private int amount; /* 商品数量 */
     private String pname; /* 商品名称 */
-    private String flag; /* 判断来自order表还是pd表的字段 */
 
-    public TableBean() {
+    public MapJoinBean() {
     }
 
     public String getId() {
@@ -61,14 +60,6 @@ public class TableBean implements Writable {
         this.pname = pname;
     }
 
-    public String getFlag() {
-        return flag;
-    }
-
-    public void setFlag(String flag) {
-        this.flag = flag;
-    }
-
     @Override
     public String toString() {
         return id + '\t' + pname + '\t' + amount;
@@ -86,7 +77,6 @@ public class TableBean implements Writable {
         dataOutput.writeUTF(pid);
         dataOutput.writeInt(amount);
         dataOutput.writeUTF(pname);
-        dataOutput.writeUTF(flag);
     }
 
     /**
@@ -101,6 +91,5 @@ public class TableBean implements Writable {
         this.pid = dataInput.readUTF();
         this.amount = dataInput.readInt();
         this.pname = dataInput.readUTF();
-        this.flag = dataInput.readUTF();
     }
 }

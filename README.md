@@ -1,5 +1,6 @@
 
-[TOC]
+```toc
+```
 
 
 
@@ -296,27 +297,28 @@ NameNode 如此重要，可是它宕机了该怎么办？Hadoop 提供了两种�
 
 在序列化的案例中我们的输出结果没有排序，是这样的：
 ```
-13470253144		upFlow=180	downFlow=180	sumFlow=360
-13509468723		upFlow=7335	downFlow=110349	sumFlow=117684
-13560439638		upFlow=918	downFlow=4938	sumFlow=5856
-13568436656		upFlow=3597	downFlow=25635	sumFlow=29232
-13590439668		upFlow=1116	downFlow=954	sumFlow=2070
-13630577991		upFlow=6960	downFlow=690	sumFlow=7650
-13682846555		upFlow=1938	downFlow=2910	sumFlow=4848
-13729199489		upFlow=240	downFlow=0	sumFlow=240
-13736230513		upFlow=2481	downFlow=24681	sumFlow=27162
-13768778790		upFlow=120	downFlow=120	sumFlow=240
-13846544121		upFlow=264	downFlow=0	sumFlow=264
-13956435636		upFlow=132	downFlow=1512	sumFlow=1644
-13966251146		upFlow=240	downFlow=0	sumFlow=240
-13975057813		upFlow=11058	downFlow=48243	sumFlow=59301
-13992314666		upFlow=3008	downFlow=3720	sumFlow=6728
-15043685818		upFlow=3659	downFlow=3538	sumFlow=7197
-15910133277		upFlow=3156	downFlow=2936	sumFlow=6092
-15959002129		upFlow=1938	downFlow=180	sumFlow=2118
-18271575951		upFlow=1527	downFlow=2106	sumFlow=3633
-18390173782		upFlow=9531	downFlow=2412	sumFlow=11943
-84188413		upFlow=4116	downFlow=1432	sumFlow=5548
+13470253144		180	180	360
+13509468723		7335	110349	117684
+13560439638		918	4938	5856
+13568436656		3597	25635	29232
+13590439668		1116	954	2070
+13630577991		6960	690	7650
+13682846555		1938	2910	4848
+13729199489		240	0	240
+13736230513		2481	24681	27162
+13768778790		120	120	240
+13846544121		264	0	264
+13956435636		132	1512	1644
+13966251146		240	0	240
+13975057813		11058	48243	59301
+13992314666		3008	3720	6728
+15043685818		3659	3538	7197
+15910133277		3156	2936	6092
+15959002129		1938	180	2118
+18271575951		1527	2106	3633
+18390173782		9531	2412	11943
+84188413		4116	1432	5548
+
 
 ```
 
@@ -327,9 +329,33 @@ NameNode 如此重要，可是它宕机了该怎么办？Hadoop 提供了两种�
 需求分析：
 ![image.png](https://raw.githubusercontent.com/liyijiadou2020/picrepo/master/202311271252343.png)
 
+实验见`com.liyijiadou.hadoop.mapreduce.writable_comparable.FlowDriver#main`
 
+实验结果：
+```
+13509468723		upFlow=7335	downFlow=110349	sumFlow=117684
+13975057813		upFlow=11058	downFlow=48243	sumFlow=59301
+13568436656		upFlow=3597	downFlow=25635	sumFlow=29232
+13736230513		upFlow=2481	downFlow=24681	sumFlow=27162
+18390173782		upFlow=9531	downFlow=2412	sumFlow=11943
+13630577991		upFlow=6960	downFlow=690	sumFlow=7650
+15043685818		upFlow=3659	downFlow=3538	sumFlow=7197
+13992314666		upFlow=3008	downFlow=3720	sumFlow=6728
+15910133277		upFlow=3156	downFlow=2936	sumFlow=6092
+13560439638		upFlow=918	downFlow=4938	sumFlow=5856
+84188413		upFlow=4116	downFlow=1432	sumFlow=5548
+13682846555		upFlow=1938	downFlow=2910	sumFlow=4848
+18271575951		upFlow=1527	downFlow=2106	sumFlow=3633
+15959002129		upFlow=1938	downFlow=180	sumFlow=2118
+13590439668		upFlow=1116	downFlow=954	sumFlow=2070
+13956435636		upFlow=132	downFlow=1512	sumFlow=1644
+13470253144		upFlow=180	downFlow=180	sumFlow=360
+13846544121		upFlow=264	downFlow=0	sumFlow=264
+13729199489		upFlow=240	downFlow=0	sumFlow=240
+13768778790		upFlow=120	downFlow=120	sumFlow=240
+13966251146		upFlow=240	downFlow=0	sumFlow=240
 
-
+```
 
 
 

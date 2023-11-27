@@ -1,6 +1,6 @@
-package com.liyijiadou.hadoop.mapreduce.writable;
+package com.liyijiadou.hadoop.mapreduce.writable_comparable;
 
-import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.io.WritableComparable;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -9,22 +9,25 @@ import java.io.IOException;
 /**
  * @author liyijia
  * @create 2023-11-2023/11/26
- * @需求：统计每一个手机号耗费的总上行流量、下行流量、总流量。
- * @输入数据格式： 1    13736230513	192.196.100.1	www.atguigu.com	2481	24681	200
- * @期望输出数据格式: 13736230513 2481	24681	27162
+ * @ 需求：根据序列化案例产生的结果再次对总流量进行倒序排序。
+ * @输入数据格式： 13470253144        upFlow=180	downFlow=180	sumFlow=360
+ * 13509468723		upFlow=7335	downFlow=110349	sumFlow=117684
+ * 13560439638		upFlow=918	downFlow=4938	sumFlow=5856
+ * 13568436656		upFlow=3597	downFlow=25635	sumFlow=29232
+ * @期望输出数据格式: 13509468723        upFlow=7335	downFlow=110349	sumFlow=117684
+ * 13568436656		upFlow=3597	downFlow=25635	sumFlow=29232
+ * 13560439638		upFlow=918	downFlow=4938	sumFlow=5856
+ * 13470253144        upFlow=180	downFlow=180	sumFlow=360
  */
 
 
 /**
  * FlowBean 类用来存放每个用户的上行流量、下行流量和总流量
- * 要实现 Writable 方法，才能支持 Map 传输给 Reduce
- * @设计步骤：
- *  1) 定义类实现Writable接口
- *  2) 重写序列化和反序列化函数
- *  3) 重写空参构造函数
- *  4) 重写 toString 方法用于打印输出
+ * 原本要实现 Writable 方法，才能支持 Map 传输给 Reduce。
+ * 现在要实现 WritableComparable 接口，这样才能支持 MapReduce 对 FlowBean 对象做排序操作。
+ *
  */
-public class FlowBean implements Writable {
+public class FlowBean implements WritableComparable<FlowBean> {
 
     private long upFlow; // 上行流量
     private long downFlow; // 下行流量
@@ -87,8 +90,14 @@ public class FlowBean implements Writable {
 
     @Override
     public String toString() {
-        return upFlow +
-                "\t" + downFlow +
-                "\t" + sumFlow;
+        return "\tupFlow=" + upFlow +
+                "\tdownFlow=" + downFlow +
+                "\tsumFlow=" + sumFlow;
+    }
+
+    @Override
+    public int compareTo(FlowBean o) {
+//        总流量的倒序排序
+        if (this.sumFlow > o.sumFlow) {return -1;} else if (this.sumFlow < o.sumFlow) {return 1;} else return 0;
     }
 }

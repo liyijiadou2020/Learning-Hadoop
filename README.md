@@ -1,4 +1,19 @@
 
+## 运行环境^skipped
+**硬件信息** 
+客户端设备：
+- 系统：Windows 10 专业版
+- 处理器	AMD Ryzen 5 2600 Six-Core Processor  3.40 GHz
+- 机带 RAM	16.0 GB
+
+Hadoop集群：
+- 系统：CentOS-7-1804
+- 资源分配情况：内存4G、硬盘50G
+
+**软件信息**
+Hadoop集群：
+- Java环境：jdk1.8.0_212
+- Hadoop环境：hadoop-3.1.3
 
 ## Hadoop简介^skipped
 <span style="background:#d4b106">一切从创建虚拟机开始！</span>

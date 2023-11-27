@@ -1,0 +1,61 @@
+package com.liyijiadou.hadoop.mapreduce.partitioner;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.lib.input.CombineTextInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+
+import java.io.IOException;
+
+/**
+ * @author liyijia
+ * @create 2023-11-2023/11/26
+ * @status 成功运行
+ * 固定的套路，7步走：
+ * 1. 获取 job 对象
+ * 2. 关联 Driver 程序的 jar
+ * 3. 关联 Mapper 和 Reducer 的 jar
+ * 4. 设置 Mapper 输出的 kv 类型
+ * 5. 设置最终输出的 kv 类型
+ * 6. 设置输入输出路径
+ * 7. 提交 job
+ *
+ * @ 结果：运行成功。
+ *
+ */
+public class WordCountDriver {
+    public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
+//        获取job
+        Configuration configuration = new Configuration();
+        Job job = Job.getInstance(configuration);
+//        设置jar包
+        job.setJarByClass(WordCountDriver.class);
+//        关联 M 和 R
+        job.setMapperClass(WordCountMapper.class);
+        job.setReducerClass(WordCountReducer.class);
+//        设置 map 输出的 kv 类型
+        job.setMapOutputKeyClass(Text.class);
+        job.setMapOutputValueClass(IntWritable.class);
+//        最终输出的 kv 类型
+        job.setOutputKeyClass(Text.class);
+        job.setOutputValueClass(IntWritable.class);
+//        输出文件数设置为2
+        job.setNumReduceTasks(2);
+
+//        设置InputFormat。默认使用是TextInputFormat.class,
+        job.setInputFormatClass(CombineTextInputFormat.class);
+//        设置存储切片最大值是4m
+        CombineTextInputFormat.setMaxInputSplitSize(job, 4194304);
+
+//        设置输入输出路径
+        FileInputFormat.setInputPaths(job, new Path("D:\\playground\\mapred-learning\\04-partitioner\\input"));
+        FileOutputFormat.setOutputPath(job, new Path("D:\\playground\\mapred-learning\\04-partitioner\\output1"));
+//        提交 job
+        boolean result = job.waitForCompletion(true);
+        System.exit(result ? 0 : 1);
+    }
+}

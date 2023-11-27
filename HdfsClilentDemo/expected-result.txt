@@ -1,0 +1,66 @@
+of        6    
+to        5    
+is        3    
+the       3    
+library   2    
+computers 2    
+designed  2    
+each      2    
+and       2    
+on        2    
+failures  2    
+The       1    
+Apache    1    
+Hadoop    1    
+software  1    
+framework 1    
+that      1    
+allows    1    
+for       1    
+distributed1    
+processing1    
+large     1    
+data      1    
+sets      1    
+across    1    
+clusters  1    
+using     1    
+simple    1    
+programming1    
+models    1    
+It        1    
+scale     1    
+up        1    
+from      1    
+single    1    
+servers   1    
+thousands 1    
+machines  1    
+offering  1    
+local     1    
+computation1    
+storage   1    
+Rather    1    
+than      1    
+rely      1    
+hardware  1    
+deliver   1    
+high      1    
+availability1    
+itself    1    
+detect    1    
+handle    1    
+at        1    
+application1    
+layer     1    
+so        1    
+delivering1    
+highly    1    
+available 1    
+service   1    
+top       1    
+cluster   1    
+which     1    
+may       1    
+be        1    
+prone     1    

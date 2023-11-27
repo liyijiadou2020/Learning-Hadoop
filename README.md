@@ -534,6 +534,15 @@ public class WordCountDriver {
 
 结果也完全一样。
 
+### 3.5 OutputFormat | 数据输出
+MapReduce 任务完成后，Reducer 并没有直接把结果写出到文件中，而是交给你一个OutputFormat 对象。
+默认的 OutputFormat 类型是 TextOutputFormat，他会把结果写出到文本文件中。
+我们可以自定义一个 OutputFormat，让 MR 输出我们想要的文件。
+
+- [ ] 自定义 OutputFormat 案例实操
+
+
+
 
 
 

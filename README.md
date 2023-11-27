@@ -1,4 +1,10 @@
 
+```TOC
+```
+
+
+---
+
 ## 运行环境^skipped
 **硬件信息** 
 客户端设备：
@@ -38,13 +44,13 @@ IP地址：192.168.10.100
 
 **TODO**
 - [x] 测试虚拟机联网情况
-- [ ] 安装 epel-release
-- [ ] 安装net-tool、vim、psmisc nc rsync lrzsz ntp libzstd openssl-static tree iotop git 【见[[尚硅谷 Hadoop 课件.pdf]]18页
+- [x] 安装 epel-release
+- [x] 安装net-tool、vim、psmisc nc rsync lrzsz ntp libzstd openssl-static tree iotop git 【见[[尚硅谷 Hadoop 课件.pdf]]18页】
 - [x] 关闭防火墙，关闭防火墙开机启动
 - [ ] 创建atguigu用户，修改用户的密码 (123456)
 - [ ] 配置atguigu具有root权限
 - [x] 在/opt目录下创建 module、software 文件夹
-	- [ ] 。。。
+	- [x] 。。。
 - [x] 卸载虚拟机自带的JDK
 - [x] 重启虚拟机
 
@@ -240,7 +246,49 @@ NameNode 如此重要，可是它宕机了该怎么办？Hadoop 提供了两种�
 `-setrep`：设置HDFS中文件副本的数量
 
 ## 3 HDFS 的 API 操作
-需要准备Windows客户端的环境。
+### 3.1 准备Windows客户端的环境
+- [x] 安装 hadoop-3.1.0
+- [x] 配置 HADOOP_HOME 环境变量
+- [x] 创建在Maven工程，导入相应的依赖坐标+日志添加
+- [x] 编写代码
+
+### 3.2 HDFS 的 API 案例实操
+见`HdfsClilentDemo
+
+
+## 4 HDFS 读写流程
+
+
+## 5 NameNode（nn） 和SecondaryNameNode（2nn）
+
+
+## 6 DataNode
+
+
+
+
+---
+# MapReduce
+
+## 1 MapReduce 概述
+- [x] WordCount实操
+
+## 2 Hadoop 序列化
+- [x] 序列化实操
+
+
+## 3 MapReduce 框架原理
+### 3.1 InputFormat：数据输入
+
+- [x] CombineTextInputFormat 实操
+
+
+### 3.2 Partition：自定义分区
+通过自定义Partition类，可以让输出结果按照自定义的规则输出到不同文件中。例如，将统计结果按照手机归属地不同省份输出到不同的文件中。（电话号码开头136、137、138、139的放在4个单独的文件中）
+- [x] Partition 分区实操
+
+### 3.3 WritableComparable 排序
+
 
 
 

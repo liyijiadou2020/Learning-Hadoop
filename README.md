@@ -539,8 +539,11 @@ MapReduce 任务完成后，Reducer 并没有直接把结果写出到文件中�
 默认的 OutputFormat 类型是 TextOutputFormat，他会把结果写出到文本文件中。
 我们可以自定义一个 OutputFormat，让 MR 输出我们想要的文件。
 
-- [ ] 自定义 OutputFormat 案例实操
+- [x] 自定义 OutputFormat 案例实操
 
+
+### 3.6 Join 应用
+两张表需要关联就要使用 join。
 
 
 

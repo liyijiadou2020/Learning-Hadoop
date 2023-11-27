@@ -357,5 +357,183 @@ NameNode 如此重要，可是它宕机了该怎么办？Hadoop 提供了两种�
 
 ```
 
+- [x] 二次排序
+- [x] 分区内部排序
+
+### 3.4 Combiner 合并
+Combiner 是MP程序中除了 Mapper 和 Reducer 之外的一种组件。它是在每一个MapTask 所在的节点运行的。使用 Combiner 可以实现先对每一个 MapTask 的输出进行局部汇总，然后再输出到 Reducer去的效果。这样可以大幅减轻 Reducer 的接受请求负担。
+我们用 WordCount 程序来举例。输入：
+```
+ruthless blend
+compose mixture
+ruthless blend
+mixture
+ruthless blend blend
+```
+如果我们没有使用 Combiner，在 MapReduce 任务结束后发给 Reducer 的将是：
+```
+(ruthless, 1)
+(ruthless, 1)
+(ruthless, 1)
+(blend, 1)
+(blend, 1)
+(blend, 1)
+(blend, 1)
+(mixture, 1)
+(mixture, 1)
+(compose, 1)
+```
+
+但是如果我们使用了 Combiner，就可以在每一个MapReduce任务结束后进行局部聚合。MapReduce 任务结束后发给 Reducer 的将是：
+```
+(ruthless, 3)
+(blend, 4)
+(mixture, 2)
+(compose, 1)
+```
+
+
+- [x] Combiner 实操
+
+实验成功。在输出的目录中我们可以看到：
+```java
+C:\Java\jdk1.8.0_201\bin\java.exe "-javaagent:C:\Program Files\JetBrains\IntelliJ IDEA 2023.2.2\lib\idea_rt.jar=12167:C:\Program Files\JetBrains\IntelliJ IDEA 
+...
+		Combine input records=10
+		Combine output records=4
+		Spilled Records=4
+		Failed Shuffles=0
+...
+Process finished with exit code 0
+
+```
+
+也就是说原本需要发送10条KV对，经过了combine之后只需要发送4条。
+
+还有一个值得注意的点。
+这是我们的WordCountCombiner：
+```java
+package com.liyijiadou.hadoop.mapreduce.combiner;  
+  
+import org.apache.hadoop.io.IntWritable;  
+import org.apache.hadoop.io.Text;  
+import org.apache.hadoop.mapreduce.Reducer;  
+  
+import java.io.IOException;  
+  
+/**  
+ * @author liyijia  
+ * @create 2023-11-2023/11/27  
+ */public class WordCountCombiner extends Reducer<Text, IntWritable, Text, IntWritable> {  
+  
+    private IntWritable outV = new IntWritable();  
+  
+    /**  
+     * @param key 单词  
+     * @param values 单词出现的个数，实际上都是1  
+     * @param context 上下文  
+     * @throws IOException  
+     * @throws InterruptedException  
+     */    @Override  
+    protected void reduce(Text key, Iterable<IntWritable> values, Reducer<Text, IntWritable, Text, IntWritable>.Context context)  
+            throws IOException, InterruptedException {  
+       int sum = 0;  
+        for (IntWritable value : values) {  
+            sum += value.get();  
+        }  
+        outV.set(sum);  
+        context.write(key, outV);  
+    }  
+}
+```
+
+这是 WordCountReducer :
+```java
+package com.liyijiadou.hadoop.mapreduce.combiner;  
+  
+  
+import org.apache.hadoop.io.IntWritable;  
+import org.apache.hadoop.io.Text;  
+import org.apache.hadoop.mapreduce.Reducer;  
+  
+import java.io.IOException;  
+  
+/**  
+ * @author liyijia  
+ * @create 2023-11-2023/11/25  
+ * Reducer源码：<KEYIN, VALUEIN, KEYOUT, VALUEOUT> {  
+ * KEYIN：reduce 阶段输入的key类型  
+ * VALUEIN：reduce阶段输入的value类型  
+ * KEYOUT：reduce阶段输出的key类型  
+ * VALUEOUT：reduce阶段输出的value类型  
+ */  
+public class WordCountReducer extends Reducer<Text, IntWritable, Text, IntWritable> {  
+  
+    //    提高运行效率，不需要每次reduce都创建一个新对象  
+    IntWritable outValue = new IntWritable();  
+    /**  
+     * reduce: 对每一种key调用一次  
+     */  
+    @Override  
+    protected void reduce(Text key, Iterable<IntWritable> values, Reducer<Text, IntWritable, Text, IntWritable>.Context context)  
+            throws IOException, InterruptedException {  
+        int sum = 0;  
+        //        要做累加  
+        for (IntWritable value : values) {  
+            sum += value.get();  
+        }  
+        //        写出  
+        outValue.set(sum);  
+        context.write(key, outValue);  
+    }  
+  
+}
+```
+
+它们竟然是一模一样的！
+难道我们完全不需要写 Combiner？
+没错，真的，我们在`job.setCombinerClass()` 函数中用`job.setCombinerClass(WordCountCombiner.class);` 取代 `job.setCombinerClass(WordCountCombiner.class);`
+完全可以实现一样的效果。
+
+修改后的Driver函数：
+```java
+public class WordCountDriver {  
+    public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {  
+//        获取job  
+        Configuration configuration = new Configuration();  
+        Job job = Job.getInstance(configuration);  
+//        设置jar包  
+        job.setJarByClass(WordCountDriver.class);  
+//        关联 M 和 R，可选：Combiner  
+        job.setMapperClass(WordCountMapper.class);  
+        job.setReducerClass(WordCountReducer.class);  
+//        job.setCombinerClass(WordCountCombiner.class);  
+        job.setCombinerClass(WordCountReducer.class);  
+  
+//        设置 map 输出的 kv 类型  
+        job.setMapOutputKeyClass(Text.class);  
+        job.setMapOutputValueClass(IntWritable.class);  
+//        最终输出的 kv 类型  
+        job.setOutputKeyClass(Text.class);  
+        job.setOutputValueClass(IntWritable.class);  
+  
+//        设置输入输出路径  
+        String inputPath = "D:\\source\\Learning-Hadoop\\playground\\mapred-learning\\08-combiner\\input";  
+        String outputPath = "D:\\source\\Learning-Hadoop\\playground\\mapred-learning\\08-combiner\\output";  
+        deleteDirectoryIfExists(outputPath);  
+        FileInputFormat.setInputPaths(job, new Path(inputPath));  
+        FileOutputFormat.setOutputPath(job, new Path(outputPath));  
+  
+//        提交 job        boolean result = job.waitForCompletion(true);  
+        System.exit(result ? 0 : 1);  
+    }  
+}
+```
+
+![image.png](https://raw.githubusercontent.com/liyijiadou2020/picrepo/master/202311271601641.png)
+
+结果也完全一样。
+
+
 
 

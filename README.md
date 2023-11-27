@@ -289,6 +289,44 @@ NameNode 如此重要，可是它宕机了该怎么办？Hadoop 提供了两种�
 
 ### 3.3 WritableComparable 排序
 
+- [ ] WritableComparable 排序案例实操（全排序）
+需求：根据序列化案例产生的结果再次对总流量进行倒序排序。
+期望输出数据：
+![image.png](https://raw.githubusercontent.com/liyijiadou2020/picrepo/master/202311271245144.png)
+
+在序列化的案例中我们的输出结果没有排序，是这样的：
+```
+13470253144		upFlow=180	downFlow=180	sumFlow=360
+13509468723		upFlow=7335	downFlow=110349	sumFlow=117684
+13560439638		upFlow=918	downFlow=4938	sumFlow=5856
+13568436656		upFlow=3597	downFlow=25635	sumFlow=29232
+13590439668		upFlow=1116	downFlow=954	sumFlow=2070
+13630577991		upFlow=6960	downFlow=690	sumFlow=7650
+13682846555		upFlow=1938	downFlow=2910	sumFlow=4848
+13729199489		upFlow=240	downFlow=0	sumFlow=240
+13736230513		upFlow=2481	downFlow=24681	sumFlow=27162
+13768778790		upFlow=120	downFlow=120	sumFlow=240
+13846544121		upFlow=264	downFlow=0	sumFlow=264
+13956435636		upFlow=132	downFlow=1512	sumFlow=1644
+13966251146		upFlow=240	downFlow=0	sumFlow=240
+13975057813		upFlow=11058	downFlow=48243	sumFlow=59301
+13992314666		upFlow=3008	downFlow=3720	sumFlow=6728
+15043685818		upFlow=3659	downFlow=3538	sumFlow=7197
+15910133277		upFlow=3156	downFlow=2936	sumFlow=6092
+15959002129		upFlow=1938	downFlow=180	sumFlow=2118
+18271575951		upFlow=1527	downFlow=2106	sumFlow=3633
+18390173782		upFlow=9531	downFlow=2412	sumFlow=11943
+84188413		upFlow=4116	downFlow=1432	sumFlow=5548
+
+```
+
+现在我们希望：以序列化案例中的输出结果作为输入，在输出的文件中按照总流量的倒序进行排序。
+
+也就是说，`FlowBean` 对象之间必须可以比较。所以`FlowBean` 要实现`WritableComparable` 接口，重写`compareTo` 方法。
+
+需求分析：
+![image.png](https://raw.githubusercontent.com/liyijiadou2020/picrepo/master/202311271252343.png)
+
 
 
 

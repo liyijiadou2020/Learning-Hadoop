@@ -290,7 +290,7 @@ NameNode 如此重要，可是它宕机了该怎么办？Hadoop 提供了两种�
 
 ### 3.3 WritableComparable 排序
 
-- [ ] WritableComparable 排序案例实操（全排序）
+- [x] WritableComparable 排序案例实操（全排序）
 需求：根据序列化案例产生的结果再次对总流量进行倒序排序。
 期望输出数据：
 ![image.png](https://raw.githubusercontent.com/liyijiadou2020/picrepo/master/202311271245144.png)

@@ -95,9 +95,25 @@ public class FlowBean implements WritableComparable<FlowBean> {
                 "\tsumFlow=" + sumFlow;
     }
 
+//    @Override
+//    public int compareTo(FlowBean o) {
+////        总流量的倒序排序
+//        if (this.sumFlow > o.sumFlow) {return -1;}
+//        else if (this.sumFlow < o.sumFlow) {return 1;}
+//        else return 0;
+//    }
+
+//    进行二次排序：如果总流量相同则按照上行流量排序
     @Override
     public int compareTo(FlowBean o) {
-//        总流量的倒序排序
-        if (this.sumFlow > o.sumFlow) {return -1;} else if (this.sumFlow < o.sumFlow) {return 1;} else return 0;
+    //        总流量的倒序排序
+        if (this.sumFlow > o.sumFlow) {return -1;}
+        else if (this.sumFlow < o.sumFlow) {return 1;}
+        else{
+            if (this.upFlow > o.upFlow) {return -1;}
+            else if (this.upFlow < o.upFlow) {return 1;}
+        }
+        return 0;
     }
+
 }

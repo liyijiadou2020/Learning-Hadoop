@@ -144,7 +144,7 @@ hivesever2 的模拟用户功能，依赖于 Hadoop 提供的 proxy user（代�
 - [x] 启动hiveserver2
 后台运行，输出全部丢入黑洞：`nohup bin/hive --service hiveserver2 1>/dev/null 2>&1 &`
 - [x] 启动 beeline 客户端（命令行窗口连接数据库）
-- [ ] 图形化界面：DataGrip
+- [x] 图形化界面：DataGrip
 	- [x] 下载 DataGrip
 	- [x] 连接 hadoop102 的数据库
 

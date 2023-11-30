@@ -23,14 +23,14 @@ Hadoop集群：
 - Hadoop环境：hadoop-3.1.3
 
 ## Hadoop简介^skipped
-<span style="background:#d4b106">一切从创建虚拟机开始！</span>
+一切从创建虚拟机开始！
 **课程地址**：【尚硅谷大数据Hadoop教程，hadoop3.x搭建到集群调优，百万播放】 https://www.bilibili.com/video/BV1Qp4y1n7EN/?p=38&share_source=copy_web&vd_source=3ddbcbe8933febf49d36238457a32fcc
-**课程安排**：
+**Todo List**：
 - [x] 大数据概论
 - [x] Hadoop 入门（搭建Hadoop集群）
 - [x] Hadoop HDFS
-- [ ] Hadoop MapReduce
-- [ ] Hadoop Yarn
+- [x] Hadoop MapReduce
+- [x] Hadoop Yarn
 - [ ] Hadoop 生产调优手册
 - [ ] 源码解析
 
@@ -48,8 +48,8 @@ Hadoop集群：
 - [x] 安装 epel-release
 - [x] 安装net-tool、vim、psmisc nc rsync lrzsz ntp libzstd openssl-static tree iotop git 【见[[尚硅谷 Hadoop 课件.pdf]]18页】
 - [x] 关闭防火墙，关闭防火墙开机启动
-- [ ] 创建atguigu用户，修改用户的密码 (123456)
-- [ ] 配置atguigu具有root权限
+- [x] 创建atguigu用户，修改用户的密码 (123456)
+- [x] 配置atguigu具有root权限
 - [x] 在/opt目录下创建 module、software 文件夹
 	- [x] 。。。
 - [x] 卸载虚拟机自带的JDK
@@ -92,7 +92,6 @@ nn web端访问地址：hadoop102:9870
 
 #### 2.3.4 mapred-site.xml
 指定 MapReduce 程序运行在 Yarn 上
-
 
 ## 3 集群主机情况
 ### 3.1 hadoop102（HDFS的NameNode）
@@ -549,7 +548,6 @@ MapReduce 任务完成后，Reducer 并没有直接把结果写出到文件中�
 
 - [x] 自定义 OutputFormat 案例实操
 
-
 ### 3.6 Join 应用
 两张表需要关联就要使用 join。
 
@@ -644,7 +642,7 @@ MapReduce 任务完成后，Reducer 并没有直接把结果写出到文件中�
 ## 3 Yarn 生成环境核心配置参数
 
 - [x] Yarn 环境配置
-```yml
+```xml
 <property>
     <!-- 选择调度器，例如容量调度器 -->
     <description>The class to use as the resource scheduler.</description>
@@ -784,6 +782,7 @@ MapReduce 任务完成后，Reducer 并没有直接把结果写出到文件中�
 ```
 
 可以在 [http://hadoop103:8088](http://hadoop103:8088) 中看到已经修改并应用成功：
+
 ![image.png](https://raw.githubusercontent.com/liyijiadou2020/picrepo/master/202311301134652.png)
 
 在这里保存一个快照`Yarn-2`
@@ -809,7 +808,7 @@ MapReduce 任务完成后，Reducer 并没有直接把结果写出到文件中�
 ![image.png](https://raw.githubusercontent.com/liyijiadou2020/picrepo/master/202311301143821.png)
 
 - [x] 配置多队列
-```yaml
+```xml
 <!-- yarn.scheduler.capacity.root.queues前面的配置项保持默认即可  -->
 
 <property>

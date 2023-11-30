@@ -97,7 +97,7 @@ sudo rpm -ivh mysql-community-server-5.7.28-1.el7.x86_64.rpm
 用刚刚查到的密码来登录：mysql -uroot -p'HtgzwdpwN6.x'
 
 - [x] 设置复杂密码
-`set password=password("123456");
+`set password=password("000000");
 
 由于密码过于简单会报错，我们的应对方法是降低密码验证安全等级：
 
@@ -109,7 +109,66 @@ sudo rpm -ivh mysql-community-server-5.7.28-1.el7.x86_64.rpm
 
 - [x] 进入 MySQL 库，修改 user 表， 把 Host 表内容修改为%，刷新
 
+### 2.4 配置 Hive 元数据存储到 MySQL 
+- [x] 新建 Hive 元数据库 `metastore`
+- [x] 将 MySQL 的 JDBC 驱动拷贝到 Hive 的 lib 目录下
+- [x] 在$HIVE_HOME/conf 目录下新建 hive-site.xml 文件
+- [x] 验证元数据是否配置成功
 
+### 2.5 Hive 服务部署
+#### 2.5.1 hiveserver2 服务
+Hive 的 hiveserver2 服务的作用是提供 jdbc/odbc 接口，为用户提供远程访问 Hive 数据的功能。
+
+![image.png](https://raw.githubusercontent.com/liyijiadou2020/picrepo/master/202311302048297.png)
+
+这里需要解决一个问题：
+
+访问 Hadoop 集群的用户是谁？
+
+这就取决于是否开启模拟用户的功能了（默认是开启的）。
+
+未开启用户模拟功能：
+
+![image.png](https://raw.githubusercontent.com/liyijiadou2020/picrepo/master/202311302050501.png)
+
+开启用户模拟：
+
+![image.png](https://raw.githubusercontent.com/liyijiadou2020/picrepo/master/202311302051370.png)
+
+生产环境下建议开启用户模拟。
+
+**hiveserver2 部署**
+
+hivesever2 的模拟用户功能，依赖于 Hadoop 提供的 proxy user（代理用户功能），只有  Hadoop 中的代理用户才能模拟其他用户的身份访问 Hadoop 集群。因此，需要将  hiveserver2 的启动用户设置为 Hadoop 的代理用户。
+
+- [x] 启动hiveserver2
+后台运行，输出全部丢入黑洞：`nohup bin/hive --service hiveserver2 1>/dev/null 2>&1 &`
+- [x] 启动 beeline 客户端（命令行窗口连接数据库）
+- [ ] 图形化界面：DataGrip
+	- [x] 下载 DataGrip
+	- [x] 连接 hadoop102 的数据库
+
+#### 2.5.2 metastore 服务
+我们已经说过了，Hive 的 metastore 服务作用是为 Hive CLI 或者 Hiveserver2 提供<font color="#c0504d">元数据访问接口</font>。我们在执行 Hive SQL 的时候本质就是执行MapReduce 程序。既然是 MR 程序那就有输入和输出路径。输入输出路径怎么映射到表格呢？这些映射关系就存在 metastore 中了。
+
+metastore 有两种运行模式：
+- 嵌入式模式，我们在这之前一直都是用这种模式。这种模式下，每个连接都内嵌一个metastore，客户端使用这个内嵌的metastore来访问数据库。
+![image.png](https://raw.githubusercontent.com/liyijiadou2020/picrepo/master/202311302146116.png)
+
+- 独立服务模式，生产中最常用的模式。每个客户端必须要拿到用户元数据库的读取权限才能访问元数据库。
+![image.png](https://raw.githubusercontent.com/liyijiadou2020/picrepo/master/202311302147936.png)
+
+
+**metastore 配置**
+1. 嵌入式模式配置
+2. 独立服务模式（重点）
+- [x] 在数据库所在的主机（我们的情况是hadoop102）配置好 hive-site.xml, 保证有连接元数据所需要的参数（jdbc连接所需的URL, Driver, username, password）
+- [x] 保证每一个客户端都配置了 metastore 服务的地址（hive-site.xml)
+- [x] hadoop102 启动 metastore 服务
+- [x] hadoop103 去 访问hadoop102 的 metastore 服务（直接启动Hive CLI，执行Hive SQL语句即可）
+
+
+### 2.6 Hive 使用技巧
 
 
 

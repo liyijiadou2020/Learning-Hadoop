@@ -808,7 +808,7 @@ MapReduce 任务完成后，Reducer 并没有直接把结果写出到文件中�
 配置前：只有一个default队列，占总资源的100%：
 ![image.png](https://raw.githubusercontent.com/liyijiadou2020/picrepo/master/202311301143821.png)
 
-- [ ] 配置多队列
+- [x] 配置多队列
 ```yaml
 <!-- yarn.scheduler.capacity.root.queues前面的配置项保持默认即可  -->
 
@@ -1414,8 +1414,47 @@ hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-3.2.3.jar wordcount 
 
 ![image.png](https://raw.githubusercontent.com/liyijiadou2020/picrepo/master/202311301347894.png)
 
+### 3.2 任务优先级配置
+- [x] 任务优先级配置
+容量调度器支持任务优先级的配置，在资源紧张时，优先级高的任务将优先获取资源。
 
+默认情况下，Yarn将所有任务的优先级限制为0，若想使用任务的优先级功能，必须开放该限制。
 
+修改`yarn-site.xml`，增加参数：
+```xml
+<property>
+    <!-- 设置Yarn的任务优先级，默认值0 -->
+    <!-- 设置5，表示我们可以有5个优先级：0/1/2/3/4/5，数字越大优先级越高 -->
+    <name>yarn.cluster.max-application-priority</name>
+    <value>5</value>
+</property>
+```
+
+分发到集群其他节点。
+重启Yarn集群（注意是在 hadoop103 上！）：
+```shell
+sbin/stop-yarn.sh
+sbin/start-yarn.sh
+```
+
+当集群中资源不足出现排队时，可以通过调整任务的优先级达到优先执行的目的：
+```shell
+# 在任务启动时就指定任务的优先级
+hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-3.1.3.jar wordcount -D mapreduce.job.priority=5 /input /output
+
+# 也可以通过命令修改正在执行的任务的优先级
+yarn application -appID <app_id> -updatePriority 5
+```
+
+### 3.3 公平调度器案例
+- [ ] 公平调度器案例实操
+
+## 4 Yarn的Tool接口
+
+懒得写了，见这里：
+https://www.yuque.com/tmfl/big_data/zhen6g
+
+---
 
 
 

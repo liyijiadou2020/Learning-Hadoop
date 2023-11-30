@@ -643,6 +643,777 @@ MapReduce 任务完成后，Reducer 并没有直接把结果写出到文件中�
 
 ## 3 Yarn 生成环境核心配置参数
 
+- [x] Yarn 环境配置
+```yml
+<property>
+    <!-- 选择调度器，例如容量调度器 -->
+    <description>The class to use as the resource scheduler.</description>
+    <name>yarn.resourcemanager.scheduler.class</name>
+    <value>org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.CapacityScheduler</value>
+</property>
+
+<property>
+    <!-- ResourceManager处理器调度器请求的线程数量，默认50 -->
+    <!-- 如果提交的任务数量大于50，可以增加该值，但是不能超过 3台 * 4线程 = 12 线程（去除其他应用程序，实际上不能超过8） -->
+    <description>Number of threads to handle scheduler interface.</description>
+    <name>yarn.resourcemanager.scheduler.client.thread-count</name>
+    <value>8</value>
+</property>
+
+<property>
+    <!-- 是否让yarn自动检测硬件进行配置，默认false -->
+    <!-- 如果该节点有很多其他应用程序，建议手动配置 -->
+    <!-- 如果该节点没有其他应用程序，可以采用自动配置 -->
+    <description>Enable auto-detection of node capabilities such as memory and CPU.</description>
+    <name>yarn.nodemanager.resource.detect-hardware-capabilities</name>
+    <value>false</value>
+</property>
+
+<property>
+    <!-- 是否将虚拟核数当做cpu核数，默认值false，采用物理核数 -->
+    <description>Flag to determine if logical processors(such as
+        hyperthreads) should be counted as cores. Only applicable on Linux
+        when yarn.nodemanager.resource.cpu-vcores is set to -1 and
+        yarn.nodemanager.resource.detect-hardware-capabilities is true.
+    </description>
+    <name>yarn.nodemanager.resource.count-logical-processors-as-cores</name>
+    <value>false</value>
+</property>
+
+<property>
+    <!-- 虚拟核数和物理核数乘数，默认值1.0 -->
+    <!-- 此处我们的服务器时4核4线程，即核数和线程数比值为1.0 -->
+    <description>Multiplier to determine how to convert phyiscal cores to
+        vcores. This value is used if yarn.nodemanager.resource.cpu-vcores
+        is set to -1(which implies auto-calculate vcores) and
+        yarn.nodemanager.resource.detect-hardware-capabilities is set to true. The
+        number of vcores will be calculated as
+        number of CPUs * multiplier.
+    </description>
+    <name>yarn.nodemanager.resource.pcores-vcores-multiplier</name>
+    <value>1.0</value>
+</property>
+
+<property>
+    <!-- NodeManager使用内存，默认设置的 -1，即不开启硬件检测时默认8G，开启的话自动计算 -->
+    <!-- 这里我们服务器是4G，需要调整为4G -->
+    <description>Amount of physical memory, in MB, that can be allocated 
+        for containers. If set to -1 and
+        yarn.nodemanager.resource.detect-hardware-capabilities is true, it is
+        automatically calculated(in case of Windows and Linux).
+        In other cases, the default is 8192MB.
+    </description>
+    <name>yarn.nodemanager.resource.memory-mb</name>
+    <value>4096</value>
+</property>
+
+<property>
+    <!-- NodeManager的CPU核数，默认值-1。即不开启硬件检测时默认8，开启的话自动计算-->
+    <!-- 此处我们的服务器只有4核4线程 -->
+    <description>Number of vcores that can be allocated
+        for containers. This is used by the RM scheduler when allocating
+        resources for containers. This is not used to limit the number of
+        CPUs used by YARN containers. If it is set to -1 and
+        yarn.nodemanager.resource.detect-hardware-capabilities is true, it is
+        automatically determined from the hardware in case of Windows and Linux.
+        In other cases, number of vcores is 8 by default.</description>
+    <name>yarn.nodemanager.resource.cpu-vcores</name>
+    <value>4</value>
+</property>
+
+<property>
+    <!-- 容器最小内存，默认1G -->
+    <description>The minimum allocation for every container request at the RM
+        in MBs. Memory requests lower than this will be set to the value of this
+        property. Additionally, a node manager that is configured to have less memory
+        than this value will be shut down by the resource manager.</description>
+    <name>yarn.scheduler.minimum-allocation-mb</name>
+    <value>1024</value>
+</property>
+
+<property>
+    <!-- 容器最大内存，默认8G -->
+    <!-- 此处我们的服务器只有4G内存，根据前面分析，每台服务器要启动3个容器，所以容器最大内存可以修改为 2G -->
+    <description>The maximum allocation for every container request at the RM
+        in MBs. Memory requests higher than this will throw an
+        InvalidResourceRequestException.</description>
+    <name>yarn.scheduler.maximum-allocation-mb</name>
+    <value>2048</value>
+</property>
+
+<property>
+    <!-- 容器最小CPU核数，默认1个 -->
+    <description>The minimum allocation for every container request at the RM
+        in terms of virtual CPU cores. Requests lower than this will be set to the
+        value of this property. Additionally, a node manager that is configured to
+        have fewer virtual cores than this value will be shut down by the resource
+        manager.</description>
+    <name>yarn.scheduler.minimum-allocation-vcores</name>
+    <value>1</value>
+</property>
+
+<property>
+    <!-- 容器最大CPU核数，默认值4 -->
+    <!-- 此处我们的服务器是4核，根据前面分析每台服务器要启动3个容器，所以容器最大CPU核数设置为2个 -->
+    <description>The maximum allocation for every container request at the RM
+        in terms of virtual CPU cores. Requests higher than this will throw an
+        InvalidResourceRequestException.</description>
+    <name>yarn.scheduler.maximum-allocation-vcores</name>
+    <value>2</value>
+</property>
+
+<property>
+    <!-- 虚拟内存检测，默认打开 -->
+    <!-- 如果是 CentOS 7 + JDK 8，建议关闭该检测 -->
+    <description>Whether virtual memory limits will be enforced for
+        containers.</description>
+    <name>yarn.nodemanager.vmem-check-enabled</name>
+    <value>false</value>
+</property>
+
+<property>
+	<!-- 虚拟内存和物理内存比例（用作虚拟内存检测的限制），默认值2.1 -->
+    <description>Ratio between virtual memory to physical memory when
+        setting memory limits for containers. Container allocations are
+        expressed in terms of physical memory, and virtual memory usage
+        is allowed to exceed this allocation by this ratio.
+    </description>
+    <name>yarn.nodemanager.vmem-pmem-ratio</name>
+    <value>2.1</value>
+</property>
+```
+
+可以在 [http://hadoop103:8088](http://hadoop103:8088) 中看到已经修改并应用成功：
+![image.png](https://raw.githubusercontent.com/liyijiadou2020/picrepo/master/202311301134652.png)
+
+在这里保存一个快照`Yarn-2`
+
+### 3.1 多队列配置
+在生产环境中不可能只使用一个队列。我们要怎么创建队列？
+1）在生产环境怎么创建队列？  
+（1）调度器默认就 1 个 default 队列，不能满足生产要求。  
+（2）按照框架： hive /spark/ flink 每个框架的任务放入指定的队列（企业用的不是特别  
+多） 。  
+（3）按照业务模块：登录注册、购物车、下单、业务部门 1、业务部门 2。  
+2）创建多队列的好处？  
+（1）因为担心员工不小心，写递归死循环代码，把所有资源全部耗尽。  
+（2）实现任务的降级使用，特殊时期保证重要的任务队列资源充足。
+业务部门 1（重要） =》业务部门 2（比较重要） =》下单（一般） =》购物车（一般） =》  登录注册（次要） 。
+
+#### 3.1.1 需求
+1. default 队列占总内存的40%，最大资源量可占总资源 60%。
+2. Hive 队列占总内存的 60%，最大资源容量可占总资源的 80%。
+3.  配置优先级
+
+配置前：只有一个default队列，占总资源的100%：
+![image.png](https://raw.githubusercontent.com/liyijiadou2020/picrepo/master/202311301143821.png)
+
+- [ ] 配置多队列
+```yaml
+<!-- yarn.scheduler.capacity.root.queues前面的配置项保持默认即可  -->
+
+<property>
+    <!-- 为容量调度器root指定多队列，默认值default -->
+    <!-- 配置为 default,hive，即增加一个hive队列 -->
+    <name>yarn.scheduler.capacity.root.queues</name>
+    <value>default,hive</value>
+    <description>
+        The queues at the this level (root is the root queue).
+    </description>
+</property>
+
+<property>
+    <!-- root调度器下的default队列的内存容量，默认100% -->
+    <!-- 根据前面的需求，调整为 40% -->
+    <name>yarn.scheduler.capacity.root.default.capacity</name>
+    <value>40</value>
+    <description>Default queue target capacity.</description>
+</property>
+
+<property>
+    <!-- hive队列的内存容量，默认没有该队列，需要增加 -->
+    <!-- 根据前面的需求，调整为 60% -->
+    <name>yarn.scheduler.capacity.root.hive.capacity</name>
+    <value>40</value>
+    <description>Default queue target capacity.</description>
+</property>
+
+<property>
+    <!-- default队列中，单个用户最多占用的资源比例，默认1（即可以占用完default队列的所有资源） -->
+    <!-- 可以根据实际需求进行调整，防止某一个用户的死循环等操作将整个队列资源全部耗尽 -->
+    <name>yarn.scheduler.capacity.root.default.user-limit-factor</name>
+    <value>1</value>
+    <description>
+        Default queue user limit a percentage from 0.0 to 1.0.
+    </description>
+</property>
+
+<property>
+    <!-- hive队列中，单个用户最多占用的资源比例。默认没有该队列，需要自行添加 -->
+    <name>yarn.scheduler.capacity.root.default.user-limit-factor</name>
+    <value>1</value>
+    <description>
+        Default queue user limit a percentage from 0.0 to 1.0.
+    </description>
+</property>
+
+<property>
+    <!-- default队列，最大可以占用的资源容量，默认100% -->
+    <!-- 根据前面的需求，调整为60%（default队列的资源容量为40%，所以最大可以再向其他队列借调20%） -->
+    <name>yarn.scheduler.capacity.root.default.maximum-capacity</name>
+    <value>60</value>
+    <description>
+        The maximum capacity of the default queue. 
+    </description>
+</property>
+<property>
+    <!-- hive队列，最大可以占用的资源容量，默认没有该队列，需要自行添加-->
+    <name>yarn.scheduler.capacity.root.hive.maximum-capacity</name>
+    <value>80</value>
+    <description>
+        The maximum capacity of the default queue. 
+    </description>
+</property>
+
+<property>
+    <!-- default队列的状态，默认值RUNNING启动，不需要修改 -->
+    <name>yarn.scheduler.capacity.root.default.state</name>
+    <value>RUNNING</value>
+    <description>
+        The state of the default queue. State can be one of RUNNING or STOPPED.
+    </description>
+</property>
+
+<property>
+    <!-- hive队列的状态，默认没有该项，需要自行添加 -->
+    <name>yarn.scheduler.capacity.root.hive.state</name>
+    <value>RUNNING</value>
+    <description>
+        The state of the default queue. State can be one of RUNNING or STOPPED.
+    </description>
+</property>
+
+<property>
+    <!-- default队列任务提交的acl权限，默认*（即所有用户都可以向该队列进行提交），不需要调整 -->
+    <name>yarn.scheduler.capacity.root.default.acl_submit_applications</name>
+    <value>*</value>
+    <description>
+        The ACL of who can submit jobs to the default queue.
+    </description>
+</property>
+
+<property>
+    <!-- hive队列任务提交的acl权限，默认没有该队列，需要自行添加 -->
+    <name>yarn.scheduler.capacity.root.hive.acl_submit_applications</name>
+    <value>*</value>
+    <description>
+        The ACL of who can submit jobs to the default queue.
+    </description>
+</property>
+
+<property>
+    <!-- default队列操作管理的acl权限，默认*（即所有用户都可以对队列任务进行kill等操作），不需要调整 -->
+    <name>yarn.scheduler.capacity.root.default.acl_administer_queue</name>
+    <value>*</value>
+    <description>
+        The ACL of who can administer jobs on the default queue.
+    </description>
+</property>
+
+<property>
+    <!-- hive队列操作管理的acl权限，默认没有该队列，需要自行添加 -->
+    <name>yarn.scheduler.capacity.root.hive.acl_administer_queue</name>
+    <value>*</value>
+    <description>
+        The ACL of who can administer jobs on the default queue.
+    </description>
+</property>
+
+<property>
+    <!-- default队列的提交任务优先级设置的acl权限，默认*（即所有用户都可以设置队列中的优先级），不需要调整 -->
+    <name>yarn.scheduler.capacity.root.default.acl_application_max_priority</name>
+    <value>*</value>
+    <description>
+        The ACL of who can submit applications with configured priority.
+        For e.g, [user={name} group={name} max_priority={priority} default_priority={priority}]
+    </description>
+</property>
+
+<property>
+    <!-- hive队列的提交任务优先级设置的acl权限，默认没有该队列，需要自行添加 -->
+    <name>yarn.scheduler.capacity.root.hive.acl_application_max_priority</name>
+    <value>*</value>
+    <description>
+        The ACL of who can submit applications with configured priority.
+        For e.g, [user={name} group={name} max_priority={priority} default_priority={priority}]
+    </description>
+</property>
+
+<property>
+    <!-- default队列的application能够指定的最大超时时间 -->
+    <!-- 如果application指定了超时时间，则提交到该队列的application能够指定的最大超时时间不能超过该值 -->
+    <!-- 任务的超时时间设置：yarn application -appId <app_id> -updateLifetime <Timeout>  -->
+    <!-- 任务执行时间如果超过了指定的超时时间，将会被kill掉 -->
+    <name>yarn.scheduler.capacity.root.default.maximum-application-lifetime
+    </name>
+    <value>-1</value>
+    <description>
+        Maximum lifetime of an application which is submitted to a queue
+        in seconds. Any value less than or equal to zero will be considered as
+        disabled.
+        This will be a hard time limit for all applications in this
+        queue. If positive value is configured then any application submitted
+        to this queue will be killed after exceeds the configured lifetime.
+        User can also specify lifetime per application basis in
+        application submission context. But user lifetime will be
+        overridden if it exceeds queue maximum lifetime. It is point-in-time
+        configuration.
+        Note : Configuring too low value will result in killing application
+        sooner. This feature is applicable only for leaf queue.
+    </description>
+</property>
+
+<property>
+    <!-- 默认没有hive队列，需要自行添加 -->
+    <name>yarn.scheduler.capacity.root.default.maximum-application-lifetime
+    </name>
+    <value>-1</value>
+    <description>
+        Maximum lifetime of an application which is submitted to a queue
+        in seconds. Any value less than or equal to zero will be considered as
+        disabled.
+        This will be a hard time limit for all applications in this
+        queue. If positive value is configured then any application submitted
+        to this queue will be killed after exceeds the configured lifetime.
+        User can also specify lifetime per application basis in
+        application submission context. But user lifetime will be
+        overridden if it exceeds queue maximum lifetime. It is point-in-time
+        configuration.
+        Note : Configuring too low value will result in killing application
+        sooner. This feature is applicable only for leaf queue.
+    </description>
+</property>
+
+<property>
+    <!-- default队列，如果没有为application指定超时时间，则使用 default-application-lifetime 作为默认值 -->
+    <name>yarn.scheduler.capacity.root.default.default-application-lifetime
+    </name>
+    <value>-1</value>
+    <description>
+        Default lifetime of an application which is submitted to a queue
+        in seconds. Any value less than or equal to zero will be considered as
+        disabled.
+        If the user has not submitted application with lifetime value then this
+        value will be taken. It is point-in-time configuration.
+        Note : Default lifetime can't exceed maximum lifetime. This feature is
+        applicable only for leaf queue.
+    </description>
+</property>
+
+<property>
+    <!-- 默认没有hive队列，需要自行添加 -->
+    <name>yarn.scheduler.capacity.root.default.default-application-lifetime
+    </name>
+    <value>-1</value>
+    <description>
+        Default lifetime of an application which is submitted to a queue
+        in seconds. Any value less than or equal to zero will be considered as
+        disabled.
+        If the user has not submitted application with lifetime value then this
+        value will be taken. It is point-in-time configuration.
+        Note : Default lifetime can't exceed maximum lifetime. This feature is
+        applicable only for leaf queue.
+    </description>
+</property>
+
+<!-- 后面的配置和容量调度器root没有关系，保持默认即可 -->
+```
+
+（此处已经提前备份了文件，备份文件是 ../doc/default-etc/capacity-scheduler.xml。
+
+这里不知道为什么，就是刷新不了队列。所以就恢复了快照`Yarn-1`
+
+重写`capacity-scheduler.xml` 文件，如下：
+```xml
+<!--
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License. See accompanying LICENSE file.
+-->
+<configuration>
+
+  <property>
+    <name>yarn.scheduler.capacity.maximum-applications</name>
+    <value>10000</value>
+    <description>
+      Maximum number of applications that can be pending and running.
+    </description>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.maximum-am-resource-percent</name>
+    <value>0.1</value>
+    <description>
+      Maximum percent of resources in the cluster which can be used to run 
+      application masters i.e. controls number of concurrent running
+      applications.
+    </description>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.resource-calculator</name>
+    <value>org.apache.hadoop.yarn.util.resource.DefaultResourceCalculator</value>
+    <description>
+      The ResourceCalculator implementation to be used to compare 
+      Resources in the scheduler.
+      The default i.e. DefaultResourceCalculator only uses Memory while
+      DominantResourceCalculator uses dominant-resource to compare 
+      multi-dimensional resources such as Memory, CPU etc.
+    </description>
+  </property>
+
+<!-- 20231130-yarn.scheduler.capacity.root.queues前面的配置项保持默认即可  -->
+<property>
+  <!-- 为容量调度器root指定多队列，默认值default -->
+  <!-- 配置为 default,hive，即增加一个hive队列 -->
+  <name>yarn.scheduler.capacity.root.queues</name>
+  <value>default,hive</value>
+  <description>
+      The queues at the this level (root is the root queue).
+  </description>
+</property>
+
+<property>
+  <!-- root调度器下的default队列的内存容量，默认100% -->
+  <!-- 根据前面的需求，调整为 40% -->
+  <name>yarn.scheduler.capacity.root.default.capacity</name>
+  <value>40</value>
+  <description>Default queue target capacity.</description>
+</property>
+
+<property>
+  <!-- hive队列的内存容量，默认没有该队列，需要增加 -->
+  <!-- 根据前面的需求，调整为 60% -->
+  <name>yarn.scheduler.capacity.root.hive.capacity</name>
+  <value>40</value>
+  <description>Default queue target capacity.</description>
+</property>
+
+<property>
+  <!-- default队列中，单个用户最多占用的资源比例，默认1（即可以占用完default队列的所有资源） -->
+  <!-- 可以根据实际需求进行调整，防止某一个用户的死循环等操作将整个队列资源全部耗尽 -->
+  <name>yarn.scheduler.capacity.root.default.user-limit-factor</name>
+  <value>1</value>
+  <description>
+      Default queue user limit a percentage from 0.0 to 1.0.
+  </description>
+</property>
+
+<property>
+  <!-- hive队列中，单个用户最多占用的资源比例。默认没有该队列，需要自行添加 -->
+  <name>yarn.scheduler.capacity.root.default.user-limit-factor</name>
+  <value>1</value>
+  <description>
+      Default queue user limit a percentage from 0.0 to 1.0.
+  </description>
+</property>
+
+<property>
+  <!-- default队列，最大可以占用的资源容量，默认100% -->
+  <!-- 根据前面的需求，调整为60%（default队列的资源容量为40%，所以最大可以再向其他队列借调20%） -->
+  <name>yarn.scheduler.capacity.root.default.maximum-capacity</name>
+  <value>60</value>
+  <description>
+      The maximum capacity of the default queue. 
+  </description>
+</property>
+<property>
+  <!-- hive队列，最大可以占用的资源容量，默认没有该队列，需要自行添加-->
+  <name>yarn.scheduler.capacity.root.hive.maximum-capacity</name>
+  <value>80</value>
+  <description>
+      The maximum capacity of the default queue. 
+  </description>
+</property>
+
+<property>
+  <!-- default队列的状态，默认值RUNNING启动，不需要修改 -->
+  <name>yarn.scheduler.capacity.root.default.state</name>
+  <value>RUNNING</value>
+  <description>
+      The state of the default queue. State can be one of RUNNING or STOPPED.
+  </description>
+</property>
+
+<property>
+  <!-- hive队列的状态，默认没有该项，需要自行添加 -->
+  <name>yarn.scheduler.capacity.root.hive.state</name>
+  <value>RUNNING</value>
+  <description>
+      The state of the default queue. State can be one of RUNNING or STOPPED.
+  </description>
+</property>
+
+<property>
+  <!-- default队列任务提交的acl权限，默认*（即所有用户都可以向该队列进行提交），不需要调整 -->
+  <name>yarn.scheduler.capacity.root.default.acl_submit_applications</name>
+  <value>*</value>
+  <description>
+      The ACL of who can submit jobs to the default queue.
+  </description>
+</property>
+
+<property>
+  <!-- hive队列任务提交的acl权限，默认没有该队列，需要自行添加 -->
+  <name>yarn.scheduler.capacity.root.hive.acl_submit_applications</name>
+  <value>*</value>
+  <description>
+      The ACL of who can submit jobs to the default queue.
+  </description>
+</property>
+
+<property>
+  <!-- default队列操作管理的acl权限，默认*（即所有用户都可以对队列任务进行kill等操作），不需要调整 -->
+  <name>yarn.scheduler.capacity.root.default.acl_administer_queue</name>
+  <value>*</value>
+  <description>
+      The ACL of who can administer jobs on the default queue.
+  </description>
+</property>
+
+<property>
+  <!-- hive队列操作管理的acl权限，默认没有该队列，需要自行添加 -->
+  <name>yarn.scheduler.capacity.root.hive.acl_administer_queue</name>
+  <value>*</value>
+  <description>
+      The ACL of who can administer jobs on the default queue.
+  </description>
+</property>
+
+<property>
+  <!-- default队列的提交任务优先级设置的acl权限，默认*（即所有用户都可以设置队列中的优先级），不需要调整 -->
+  <name>yarn.scheduler.capacity.root.default.acl_application_max_priority</name>
+  <value>*</value>
+  <description>
+      The ACL of who can submit applications with configured priority.
+      For e.g, [user={name} group={name} max_priority={priority} default_priority={priority}]
+  </description>
+</property>
+
+<property>
+  <!-- hive队列的提交任务优先级设置的acl权限，默认没有该队列，需要自行添加 -->
+  <name>yarn.scheduler.capacity.root.hive.acl_application_max_priority</name>
+  <value>*</value>
+  <description>
+      The ACL of who can submit applications with configured priority.
+      For e.g, [user={name} group={name} max_priority={priority} default_priority={priority}]
+  </description>
+</property>
+
+<property>
+  <!-- default队列的application能够指定的最大超时时间 -->
+  <!-- 如果application指定了超时时间，则提交到该队列的application能够指定的最大超时时间不能超过该值 -->
+  <!-- 任务的超时时间设置：yarn application -appId <app_id> -updateLifetime <Timeout>  -->
+  <!-- 任务执行时间如果超过了指定的超时时间，将会被kill掉 -->
+  <name>yarn.scheduler.capacity.root.default.maximum-application-lifetime
+  </name>
+  <value>-1</value>
+  <description>
+      Maximum lifetime of an application which is submitted to a queue
+      in seconds. Any value less than or equal to zero will be considered as
+      disabled.
+      This will be a hard time limit for all applications in this
+      queue. If positive value is configured then any application submitted
+      to this queue will be killed after exceeds the configured lifetime.
+      User can also specify lifetime per application basis in
+      application submission context. But user lifetime will be
+      overridden if it exceeds queue maximum lifetime. It is point-in-time
+      configuration.
+      Note : Configuring too low value will result in killing application
+      sooner. This feature is applicable only for leaf queue.
+  </description>
+</property>
+
+<property>
+  <!-- 默认没有hive队列，需要自行添加 -->
+  <name>yarn.scheduler.capacity.root.default.maximum-application-lifetime
+  </name>
+  <value>-1</value>
+  <description>
+      Maximum lifetime of an application which is submitted to a queue
+      in seconds. Any value less than or equal to zero will be considered as
+      disabled.
+      This will be a hard time limit for all applications in this
+      queue. If positive value is configured then any application submitted
+      to this queue will be killed after exceeds the configured lifetime.
+      User can also specify lifetime per application basis in
+      application submission context. But user lifetime will be
+      overridden if it exceeds queue maximum lifetime. It is point-in-time
+      configuration.
+      Note : Configuring too low value will result in killing application
+      sooner. This feature is applicable only for leaf queue.
+  </description>
+</property>
+
+<property>
+  <!-- default队列，如果没有为application指定超时时间，则使用 default-application-lifetime 作为默认值 -->
+  <name>yarn.scheduler.capacity.root.default.default-application-lifetime
+  </name>
+  <value>-1</value>
+  <description>
+      Default lifetime of an application which is submitted to a queue
+      in seconds. Any value less than or equal to zero will be considered as
+      disabled.
+      If the user has not submitted application with lifetime value then this
+      value will be taken. It is point-in-time configuration.
+      Note : Default lifetime can't exceed maximum lifetime. This feature is
+      applicable only for leaf queue.
+  </description>
+</property>
+
+<property>
+  <!-- 默认没有hive队列，需要自行添加 -->
+  <name>yarn.scheduler.capacity.root.default.default-application-lifetime
+  </name>
+  <value>-1</value>
+  <description>
+      Default lifetime of an application which is submitted to a queue
+      in seconds. Any value less than or equal to zero will be considered as
+      disabled.
+      If the user has not submitted application with lifetime value then this
+      value will be taken. It is point-in-time configuration.
+      Note : Default lifetime can't exceed maximum lifetime. This feature is
+      applicable only for leaf queue.
+  </description>
+</property>
+<!-- 后面的配置和容量调度器root没有关系，保持默认即可 -->
+
+  <property>
+    <name>yarn.scheduler.capacity.node-locality-delay</name>
+    <value>40</value>
+    <description>
+      Number of missed scheduling opportunities after which the CapacityScheduler 
+      attempts to schedule rack-local containers.
+      When setting this parameter, the size of the cluster should be taken into account.
+      We use 40 as the default value, which is approximately the number of nodes in one rack.
+      Note, if this value is -1, the locality constraint in the container request
+      will be ignored, which disables the delay scheduling.
+    </description>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.rack-locality-additional-delay</name>
+    <value>-1</value>
+    <description>
+      Number of additional missed scheduling opportunities over the node-locality-delay
+      ones, after which the CapacityScheduler attempts to schedule off-switch containers,
+      instead of rack-local ones.
+      Example: with node-locality-delay=40 and rack-locality-delay=20, the scheduler will
+      attempt rack-local assignments after 40 missed opportunities, and off-switch assignments
+      after 40+20=60 missed opportunities.
+      When setting this parameter, the size of the cluster should be taken into account.
+      We use -1 as the default value, which disables this feature. In this case, the number
+      of missed opportunities for assigning off-switch containers is calculated based on
+      the number of containers and unique locations specified in the resource request,
+      as well as the size of the cluster.
+    </description>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.queue-mappings</name>
+    <value></value>
+    <description>
+      A list of mappings that will be used to assign jobs to queues
+      The syntax for this list is [u|g]:[name]:[queue_name][,next mapping]*
+      Typically this list will be used to map users to queues,
+      for example, u:%user:%user maps all users to queues with the same name
+      as the user.
+    </description>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.queue-mappings-override.enable</name>
+    <value>false</value>
+    <description>
+      If a queue mapping is present, will it override the value specified
+      by the user? This can be used by administrators to place jobs in queues
+      that are different than the one specified by the user.
+      The default is false.
+    </description>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.per-node-heartbeat.maximum-offswitch-assignments</name>
+    <value>1</value>
+    <description>
+      Controls the number of OFF_SWITCH assignments allowed
+      during a node's heartbeat. Increasing this value can improve
+      scheduling rate for OFF_SWITCH containers. Lower values reduce
+      "clumping" of applications on particular nodes. The default is 1.
+      Legal values are 1-MAX_INT. This config is refreshable.
+    </description>
+  </property>
+
+
+  <property>
+    <name>yarn.scheduler.capacity.application.fail-fast</name>
+    <value>false</value>
+    <description>
+      Whether RM should fail during recovery if previous applications'
+      queue is no longer valid.
+    </description>
+  </property>
+
+</configuration>
+
+```
+
+当我执行刷新队列的时候，报错：
+```shell
+[atguigu@hadoop102 hadoop]$ yarn rmadmin -refreshQueues
+2023-11-30 18:14:55,401 INFO client.RMProxy: Connecting to ResourceManager at hadoop103/192.168.10.103:8033
+2023-11-30 18:14:56,956 INFO ipc.Client: Retrying connect to server: hadoop103/192.168.10.103:8033. Already tried 0 time(s); retry policy is RetryUpToMaximumCountWithFixedSleep(maxRetries=10, sleepTime=1000 MILLISECONDS)
+2023-11-30 18:14:57,958 INFO ipc.Client: Retrying connect to server: hadoop103/192.168.10.103:8033. Already tried 1 time(s); retry policy is RetryUpToMaximumCountWithFixedSleep(maxRetries=10, sleepTime=1000 MILLISECONDS)
+2023-11-30 18:14:58,961 INFO ipc.Client: Retrying connect to server: hadoop103/192.168.10.103:8033. Already tried 2 time(s); retry policy is RetryUpToMaximumCountWithFixedSleep(maxRetries=10, sleepTime=1000 MILLISECONDS)
+...
+```
+
+我不知道为什么！？
+
+经过网上查找答案后破案了：原来是我的 Resource Manager 没有被启动起来。
+
+在 hadoop103 上运行 `start-all.sh` ，稍等片刻后就能看到 启动了。
+于是再执行刷新队列的操作，这回成功了：
+```shell
+[atguigu@hadoop103 hadoop]$ yarn rmadmin -refreshQueues
+2023-11-30 18:35:28,847 INFO client.RMProxy: Connecting to ResourceManager at hadoop103/192.168.10.103:8033
+
+```
+
+很奇怪。这个问题说明我的脚本 myhadoop.sh 无法启动 resource manager。说明有可能 yarn.xml 出了问题。
+
+暂时不管这个bug吧，我们在hadoop103:8088/中可以看到两个队列已经配置好了：
+![image.png](https://raw.githubusercontent.com/liyijiadou2020/picrepo/master/202311301340794.png)
+
+测试一下任务是否会执行。我们指定一个任务提交到hive队列中试试：
+```shell
+# 指定提交到hive队列
+# -D 运行时改变参数值
+hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-3.2.3.jar wordcount -D mapreduce.job.queuename=hive /input /output
+```
+
+是的，可以观察到 hive 队列已经在执行了，实验成功。
+
+![image.png](https://raw.githubusercontent.com/liyijiadou2020/picrepo/master/202311301347894.png)
+
 
 
 

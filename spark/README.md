@@ -1,8 +1,8 @@
 
 # 课程信息
-标题：尚硅谷大数据Spark教程从入门到精通
-URL： https://www.bilibili.com/video/BV11A411L7CK/?p=4&share_source=copy_web&vd_source=3ddbcbe8933febf49d36238457a32fcc
-目录：见spark_demo/doc/目录.md
+- 标题：尚硅谷大数据Spark教程从入门到精通
+- URL： https://www.bilibili.com/video/BV11A411L7CK/?p=4&share_source=copy_web&vd_source=3ddbcbe8933febf49d36238457a32fcc
+- 目录：见spark_demo/doc/目录.md
 
 ## 1 Spark 框架
 ### 1.1 Spark 概述
@@ -30,7 +30,12 @@ Spark 一直被认为是 Hadoop 框架的升级版。
 - [x] 创建Maven 项目
 - [x] 配置 Scala JDK
 - [x] 测试 Scale 环境 （hello spark）
+- [ ] WordCount 案例
 
+#### 1.3.1 步骤
+1. 建立和Spark 框架的连接
+2. 执行业务操作
+3. 关闭连接
 
 
 ## 2 Spark Core

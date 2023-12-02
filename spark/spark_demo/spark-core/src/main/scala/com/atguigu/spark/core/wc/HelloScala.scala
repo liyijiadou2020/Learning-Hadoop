@@ -18,9 +18,28 @@ object HelloScala {
    * @param args
    */
   def main(args: Array[String]): Unit = {
-    var sum = ""
-    for (ch <- "Hello") sum += ch
-    println(sum)
+    // var sum = ""
+    // for (ch <- "Hello") sum += ch
+    // println(sum)
+
+    val scores = scala.collection.mutable.SortedMap(
+      "Alice" -> 10,
+      "Fred" -> 7,
+      "Bob" -> 3
+    )
+    println(scores) // 哈希表：使用键的哈希码来遍历
+
+    val months = scala.collection.mutable.LinkedHashMap(
+      "Feb" -> 2,
+      "Mar" -> 3,
+      "Apr" -> 4
+    )
+    println(months)
+
+
+
+
+
   }
 
 }

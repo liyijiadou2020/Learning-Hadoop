@@ -153,5 +153,42 @@ def box(s: String): Unit = {
 - 哈希映射 & 树型映射
 - 元组
 
+### 4.1 映射
+映射有两种常见的实现策略：哈希表和平衡树。哈希表使用键的哈希值来划定位置，所以遍历会以一种不可预期的顺序交出元素，这也是Scala 默认的映射类型。如果需要按顺序依次访问映射中的值，使用SortedMap。
+```scala
+val scores = scala.collection.mutable.SortedMap(  // 哈希表：使用键的哈希码来遍历  
+  "Alice" -> 10,  
+  "Fred" -> 7,  
+  "Bob" -> 3  
+)  
+println(scores) 
+  
+val months = scala.collection.mutable.LinkedHashMap(  
+  "Feb" -> 2,  
+  "Mar" -> 3,  
+  "Apr" -> 4  
+)  
+println(months)
+
+/*
+输出：
+TreeMap(Alice -> 10, Bob -> 3, Fred -> 7)
+Map(Feb -> 2, Mar -> 3, Apr -> 4)
+*/
+
+```
+
+### 4.2 元组
+元组是不同类型的值的聚集。通过圆括号来构成元组。
+
+`val t = (1, 3.14, "Fred")`
+
+可以使用`_1`, `_2`, `_3` 来访问组员：`val second = t._2`
+
+注意！和数组不一样，**元组是从1开始的**，而不是从0开始的。
+
+也可以通过模式匹配来获取元组的构成部件：`val (first, second, third) = t`
+
+如果不是每个部件都需要，可以在不需要的部件上使用占位符`_` ： `val (first, second, _) = t`
 
 

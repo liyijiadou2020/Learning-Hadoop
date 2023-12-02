@@ -130,8 +130,20 @@ local 模式只是演示联系使用，真实工作中还要有集群模式。�
 
 ### 3.3 Yarn 模式（工作中比较多）
 
+- [x] 在 hadoop102 上部署
 
+### 3.4 K8s 和 Mesos 模式
+Mesos 是 Apache 下的开源分布式资源管理框架。它在 Twitter 上广泛应用。但在国内，依然是传统的 Hadoop 框架比较流行。
 
+容器化部署是业界很流行的一项技术。容器管理工具中最为流行的就是k8s。而Spark也支持了K8S的部署模式。
+
+### 3.5 Windows 模式
+
+- [x] 在 Windows 环境下部署 spark
+
+提示：退出要用小写英文字母`y`
+
+![image.png](https://raw.githubusercontent.com/liyijiadou2020/picrepo/master/202312022340943.png)
 
 
 ---

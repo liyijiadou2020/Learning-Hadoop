@@ -100,22 +100,18 @@ object Spark02_WordCount {
      *
      */
     val wordToCount = wordGroup.map {
-
-      case (word, list) => {
+      case (word, list) =>
         list.reduce(
           (t1, t2) => {
             (t1._1, t1._2 + t2._2)
           }
         )
-      }
-
     }
 
     //    5. 将转换结果采集到控制台打印出来
     val array: Array[(String, Int)] = wordToCount.collect()
     array.foreach(println)
     sparkContext.stop()
-
   }
 
 

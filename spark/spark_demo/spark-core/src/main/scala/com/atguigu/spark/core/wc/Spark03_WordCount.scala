@@ -19,7 +19,6 @@ object Spark03_WordCount {
      * 2. 执行业务操作
      * 3. 关闭连接
      */
-
     val sparkConf = new SparkConf().setMaster("local").setAppName("WordCount")
     val sparkContext = new SparkContext(sparkConf)
 
@@ -35,23 +34,9 @@ object Spark03_WordCount {
     )
 
     //    3. 将数据根据单词进行分组
-    // Spark 框架提供了更多的功能：可以将分组和聚合使用一个方法实现 - reduceByKey() 。
-    // val wordGroup: RDD[(String, Iterable[(String, Int)])] = wordToOne.groupBy(
-    //   t => t._1
-    // )
-    // val wordToCount = wordGroup.map {
-    //   case (word, list) =>
-    //     list.reduce(
-    //       (t1, t2) => {
-    //         (t1._1, t1._2 + t2._2)
-    //       }
-    //     )
-    // }
-
     // reduceByKey() - 相同的key 数据可以对value进行reduce聚合。
     val wordToCount: RDD[(String, Int)] = wordToOne.reduceByKey(_ + _)
-
-
+    
     //    5. 将转换结果采集到控制台打印出来
     val array: Array[(String, Int)] = wordToCount.collect()
     array.foreach(println)

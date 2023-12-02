@@ -18,7 +18,9 @@ object HelloScala {
    * @param args
    */
   def main(args: Array[String]): Unit = {
-    println("Hello")
+    var sum = ""
+    for (ch <- "Hello") sum += ch
+    println(sum)
   }
 
 }

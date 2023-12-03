@@ -201,6 +201,7 @@ RDD 方法分两大类：转换和行动。
 ###### 4.1.4.3.1 转化算子
 RDD 处理每种数据方法不同，因此算子的类型也不同。整体上RDD 转化算子包括 Value 类型、双 Value 类型 和 K-V 类型。
 
+
 - Value 类型
 	- map（用得最多的）
 		- 函数签名：def map[U: ClassTag](f: T => U): RDD[U]
@@ -216,7 +217,7 @@ RDD 处理每种数据方法不同，因此算子的类型也不同。整体上R
 	- groupBy
 		- 将数据根据指定的规则进行分组, 分区默认不变，但是数据会被打乱重新组合，我们将这样  的操作称之为 shuffle。极限情况下，数据可能被分在同一个分区中一个组的数据在一个分区中，但是并不是说一个分区中只有一个组
 	- filter
-		- 将数据根据指定的规则进行筛选过滤，符合规则的数据保留，不符合规则的数据丢弃。当数据进行筛选过滤后，分区不变，但是分区内的数据可能不均衡，生产环境下，可能会出现数据倾斜。
+		- 将数据根据指定的规则进行筛选过滤，**符合规则的数据保留，不符合规则的数据丢弃**。当数据进行筛选过滤后，分区不变，但是分区内的数据可能不均衡，生产环境下，可能会出现**数据倾斜**。
 	- sample
 		- 根据指定的规则从数据集中抽取数据
 	- distinct
@@ -227,15 +228,40 @@ RDD 处理每种数据方法不同，因此算子的类型也不同。整体上R
 		- 该操作内部其实执行的是 coalesce 操作，参数 shuffle 的默认值为 true。无论是将分区数多的 RDD 转换为分区数少的 RDD，还是将分区数少的 RDD 转换为分区数多的 RDD， repartition操作都可以完成，因为无论如何都会经 shuffle 过程。
 	- sortBy
 		- 该操作用于排序数据。在排序之前，可以将数据通过 f 函数进行处理，之后按照 f 函数处理的结果进行排序，默认为升序排列。排序后新产生的 RDD 的分区数与原 RDD 的分区数一致。 中间存在 shuffle 的过程
+
+
 - 双 Value 类型
-	- 
+	- intersection
+		- 对源 RDD 和参数 RDD 求交集后返回一个新的 RDD
+	- union
+		- 对源 RDD 和参数 RDD 求并集后返回一个新的 RDD
+	- subtract
+		- 以一个 RDD 元素为主， 去除两个 RDD 中重复元素，将其他元素保留下来。求差集
+	- zip
+		- 将两个 RDD 中的元素，以键值对的形式进行合并。其中，键值对中的 Key 为第 1 个 RDD中的元素， Value 为第 2 个 RDD 中的相同位置的元素。
+交、并、差 都要求 要求数据类型一致！但是zip无所谓。
+
+
+- Key - Value 类型
+	- partitionBy：将数据按照指定的Partitioner 重新进行分区。Spark 默认的分区器是 HashPatitioner。
+	- reduceByKey：可以将数据按照相同的key对value进行聚合
+	- groupByKey：根据key对value进行分组
+	- aggregateByKey：将数据根据不同规则进行**分区内**计算和**分区间**计算
+		- reduceByKey：分区内和分区间的计算规则相同，而aggregateByKey则是不同的。
+	- foldByKey：当分区内计算规则和分区间计算规则相同时， aggregateByKey 就可以简化为 foldByKey
+	- combineByKey：最通用的对 key-value 型 rdd 进行聚集操作的聚集函数（aggregation function）。类似于aggregate()， combineByKey()允许用户返回值的类型与输入不一致。
+	- sortByKey：在一个(K,V)的 RDD 上调用， K 必须实现 Ordered 接口(特质)，返回一个按照 key 进行排序的
+	- join：在类型为(K,V)和(K,W)的 RDD 上调用，返回一个相同 key 对应的所有元素连接在一起的(K,(V,W))的 RDD
+	- leftOuterJoin：类似于 SQL 语句的左外连接
+	- cogroup：在类型为(K,V)和(K,W)的 RDD 上调用，返回一个。。。
 
 
 
+- [ ] 案例实操：agent.log（时间戳，省份，城市，用户，广告，中间字段使用空格分隔），统计出每一个省份每个广告被点击数量排行的 Top3
 
 
 ###### 4.1.4.3.2 行动算子
-
+1) 
 
 
 

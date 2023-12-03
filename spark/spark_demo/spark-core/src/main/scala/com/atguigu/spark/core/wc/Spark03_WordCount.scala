@@ -36,7 +36,7 @@ object Spark03_WordCount {
     //    3. 将数据根据单词进行分组
     // reduceByKey() - 相同的key 数据可以对value进行reduce聚合。
     val wordToCount: RDD[(String, Int)] = wordToOne.reduceByKey(_ + _)
-    
+
     //    5. 将转换结果采集到控制台打印出来
     val array: Array[(String, Int)] = wordToCount.collect()
     array.foreach(println)

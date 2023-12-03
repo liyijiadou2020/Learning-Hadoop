@@ -369,29 +369,29 @@ saveAsObjectFile()实现对对象文件的输出。因为是序列化所以要�
 **主要内容**：
 
 - 环境准备（Yarn集群）：
-1) Driver Executor
-2) Submit Application
+	1) Driver Executor
+	2) Submit Application
 
 - 组件通信 ：
-1) Driver - Executor
-2) Executor - Driver
-3) Executor - Executor
+	1) Driver - Executor
+	2) Executor - Driver
+	3) Executor - Executor
 
 - 应用程序的执行
-1) RDD 依赖关系
-2) Stage 的划分
-3) Task 的划分
-4) Task 调度
-5) Task 执行
+	1) RDD 依赖关系
+	2) Stage 的划分
+	3) Task 的划分
+	4) Task 调度
+	5) Task 执行
 
 - Shuffle的原理
-1) 原理、执行过程
-2) 写磁盘
-3) 读取磁盘
+	1) 原理、执行过程
+	2) 写磁盘
+	3) 读取磁盘
 
 - 内存管理
-1) 内存的分类
-2) 内存的配置
+	1) 内存的分类
+	2) 内存的配置
 
 
 
